@@ -1,0 +1,23 @@
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	# tls version
+	ssl_protocols TLSv1.2 TLSv1.3;
+
+	# ssl
+	ssl on;
+	ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+	ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+	# server root directory
+	root /www;
+
+	# reading list
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name Inception;
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
