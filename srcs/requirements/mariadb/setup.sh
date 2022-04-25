@@ -4,19 +4,37 @@ NC='\033[0m'
 
 # User settings
 echo -e "${RED}Apply user settings...${NC}"
-addgroup "www"
-adduser -D -g "www" www
-chown -R $DB_USER:$DB_GROUP /var/lib/mysql
+mariadb-install-db --datadir=/var/lib/mysql --auth-root-authentication-method=normal && \
+chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
-echo -e "${RED}Service MariaDB${NC}"
-openrc
-touch /run/openrc/softlevel
-/etc/init.d/mariadb setup
-/etc/init.d/mariadb start
+echo -e "${RED}Start mariadb for configuration${NC}"
+# Execute MariaDB Daemon as a Background Process to Set Up
+/usr/bin/mysqld_safe --datadir=/var/lib/mysql &
+# Change Config to Use Not Only Socket But Also Network
+sed -i "s/skip-networking/# skip-networking/g" /etc/my.cnf.d/mariadb-server.cnf
+# Change Config to Allow Every Host
+sed -i "s/.*bind-address\s*=.*/bind-address=0.0.0.0\nport=3306/g" /etc/my.cnf.d/mariadb-server.cnf
+# Check Server Status Whether Configuration File Applied Well or Not
 
-echo -e "${RED}Setup db${NC}"
-chmod 755 db-create.sh
-./db-create.sh wordpress wordpress wordpress
-#./db-create.sh $DB_TABLE $DB_USER $DB_PASSWORD
+echo -e "${RED}Add database for wordpress${NC}"
+if ! mysqladmin --wait=10 ping; then
+	echo -e "MariaDB Daemon Unreachable\n"
+	exit 1
+fi
+chmod 755 /db-create.sh
+#/db-create.sh wordpress wordpress wordpress
+/db-create.sh ${MARIADB_DB} ${MARIADB_USER} ${MARIADB_PWD}
 
-tail -F anything
+# stop mariadb daemon
+echo -e "${RED}Finish mariadb setup${NC}"
+mysqladmin -uroot --password="" shutdown
+
+# start mariadb as non-daemon
+echo -e "${RED}Start mariadb service${NC}"
+/usr/bin/mysqld_safe --datadir=/var/lib/mysql
+if ! mysqladmin --wait=10 ping; then
+	echo -e "MariaDB Daemon Unreachable\n"
+	exit 1
+fi
+
+echo -e "${RED}Finished All mariadb configuration!!${NC}"

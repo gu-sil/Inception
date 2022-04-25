@@ -1,11 +1,39 @@
 version: "3.9"
 services:
+  mariadb:
+    build: ./requirements/mariadb
+    expose:
+      - "3306"
+    networks:
+      - intra
+    env_file:
+      - .env
+    volumes:
+      - ./vol_mariadb:/var/lib/mysql
+  wordpress:
+    build: ./requirements/wordpress
+    expose:
+      - "9000"
+    networks:
+      - intra
+    env_file:
+      - .env
+    volumes:
+      - ./vol_wordpress:/var/www/wordpress
+    depends_on:
+      - mariadb
   nginx:
     build: ./requirements/nginx
     ports:
       - 443:443
     networks:
       - intra
+    env_file:
+      - .env
+    volumes:
+      - ./vol_wordpress:/var/www/wordpress
+    depends_on:
+      - wordpress
 
 networks:
   intra:

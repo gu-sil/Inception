@@ -1,28 +1,16 @@
 #!/bin/bash
 
-green() {
-  echo -e '\e[32m'$1'\e[m';
-}
-
-readonly EXPECTED_ARGS=3
-readonly E_BADARGS=65
 readonly MYSQL=`which mysql`
 
 # Construct the MySQL query
-readonly Q1="CREATE DATABASE IF NOT EXISTS $1;"
-readonly Q2="GRANT ALL ON *.* TO '$2'@'localhost' IDENTIFIED BY '$3';"
-readonly Q3="FLUSH PRIVILEGES;"
-readonly SQL="${Q1}${Q2}${Q3}"
-
-# Do some parameter checking and bail if bad
-if [ $# -ne $EXPECTED_ARGS ]
-then
-  echo "Usage: $0 dbname dbuser dbpass"
-  exit $E_BADARGS
-fi
+readonly Q1="CREATE DATABASE IF NOT EXISTS $MARIADB_DB;"
+readonly Q2="CREATE USER '$MARIADB_USER'@'%' IDENTIFIED BY '$MARIADB_PWD';"
+readonly Q3="GRANT ALL PRIVILEGES ON $MARIADB_DB.* TO '$MARIADB_USER'@'%' WITH GRANT OPTION;"
+readonly Q4="FLUSH PRIVILEGES;"
+readonly SQL="${Q1}${Q2}${Q3}${Q4}"
 
 # Run the actual command
 $MYSQL -uroot --password="" -e "$SQL"
 
 # Let the user know the database was created
-green "Database $1 and user $2 created with a password you chose"
+echo -e "Database $MARIADB_DB and user $MARIADB_USER created with a password you chose"
