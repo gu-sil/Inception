@@ -15,17 +15,24 @@ sed -i "s/skip-networking/# skip-networking/g" /etc/my.cnf.d/mariadb-server.cnf
 # Change Config to Allow Every Host
 sed -i "s/.*bind-address\s*=.*/bind-address=0.0.0.0\nport=3306/g" /etc/my.cnf.d/mariadb-server.cnf
 # Check Server Status Whether Configuration File Applied Well or Not
-
 echo -e "${RED}Add database for wordpress${NC}"
 if ! mysqladmin --wait=10 ping; then
 	echo -e "MariaDB Daemon Unreachable\n"
 	exit 1
 fi
-chmod 755 /tmp/db-create.sh
-#/db-create.sh wordpress wordpress wordpress
-bash /tmp/db-create.sh
 
-mysqladmin -uroot --password="" password "${MARIADB_ROOT_PWD}"
+# if this is set up phase,
+# make db for wordpress and set root password
+if ! [[ -f /var/lib/mysql/${CHECK_FILE_NAME} ]];
+then
+	chmod 755 /tmp/db-create.sh
+	#/db-create.sh wordpress wordpress wordpress
+	bash /tmp/db-create.sh
+	mysqladmin -uroot --password="" password "${MARIADB_ROOT_PWD}"
+	
+	touch /var/lib/mysql/${CHECK_FILE_NAME}
+fi
+
 # stop mariadb daemon
 echo -e "${RED}Finish mariadb setup${NC}"
 mysqladmin -uroot --password="${MARIADB_ROOT_PWD}" shutdown
