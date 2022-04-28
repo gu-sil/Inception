@@ -5,7 +5,7 @@ NC='\033[0m'
 # User settings
 echo -e "${RED}Apply user settings...${NC}"
 mariadb-install-db --datadir=/var/lib/mysql --auth-root-authentication-method=normal && \
-chown -R mysql:mysql /var/lib/mysql /run/mysqld
+chown -R mysql:mysql /var/lib/mysql
 
 echo -e "${RED}Start mariadb for configuration${NC}"
 # Execute MariaDB Daemon as a Background Process to Set Up
@@ -21,13 +21,14 @@ if ! mysqladmin --wait=10 ping; then
 	echo -e "MariaDB Daemon Unreachable\n"
 	exit 1
 fi
-chmod 755 /db-create.sh
+chmod 755 /tmp/db-create.sh
 #/db-create.sh wordpress wordpress wordpress
-/db-create.sh ${MARIADB_DB} ${MARIADB_USER} ${MARIADB_PWD}
+bash /tmp/db-create.sh
 
+mysqladmin -uroot --password="" password "${MARIADB_ROOT_PWD}"
 # stop mariadb daemon
 echo -e "${RED}Finish mariadb setup${NC}"
-mysqladmin -uroot --password="" shutdown
+mysqladmin -uroot --password="${MARIADB_ROOT_PWD}" shutdown
 
 # start mariadb as non-daemon
 echo -e "${RED}Start mariadb service${NC}"
