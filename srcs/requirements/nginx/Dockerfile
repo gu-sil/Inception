@@ -1,6 +1,6 @@
 FROM alpine:3.14
 
-RUN apk update && apk add --no-cache   vim bash wget nginx openrc dumb-init
+RUN apk update && apk add --no-cache   vim bash wget nginx dumb-init
 
 COPY ./tools/setup.sh /tmp/setup.sh
 COPY ./tools/index.html /tmp/index.html
