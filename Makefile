@@ -14,7 +14,6 @@ clean :
 
 fclean :
 	sudo docker-compose -f srcs/docker-compose.yml down
-	sudo rm -rf srcs/vol_mariadb srcs/vol_wordpress
 	sudo docker system prune --volumes --all --force
 	sudo docker network prune --force
 	sudo docker volume prune --force

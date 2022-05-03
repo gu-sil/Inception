@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./vol_mariadb:/var/lib/mysql
+      - vol_mariadb:/var/lib/mysql
     restart: always
   wordpress:
     build: ./requirements/wordpress
@@ -16,7 +16,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./vol_wordpress:/var/www/wordpress
+      - vol_wordpress:/var/www/wordpress
     depends_on:
       - mariadb
     restart: always
@@ -29,9 +29,24 @@ services:
     env_file:
       - .env
     volumes:
-      - ./vol_wordpress:/var/www/wordpress
+      - vol_wordpress:/var/www/wordpress
     depends_on:
       - wordpress
     restart: always
 networks:
   intra:
+volumes:
+  vol_mariadb:
+    driver: local
+    driver_opts:
+      device: ${VOL_PATH}/mariadb
+      o: bind
+      type: volume
+    name: vol_mariadb
+  vol_wordpress:
+    driver: local
+    driver_opts:
+      device: ${VOL_PATH}/wordpress
+      o: bind
+      type: volume
+    name: vol_wordpress

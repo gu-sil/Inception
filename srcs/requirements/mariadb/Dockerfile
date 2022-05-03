@@ -1,7 +1,5 @@
 FROM alpine:3.14
 
-#VOLUME [ “/sys/fs/cgroup” ]
-
 RUN	apk update \
 &&	apk add wget bash mariadb mariadb-client dumb-init
 
