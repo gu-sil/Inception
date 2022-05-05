@@ -3,6 +3,8 @@ NAME	= Inception
 $(NAME) : all
 
 all :
+	sudo mkdir -p /home/jongpark/data/mariadb
+	sudo mkdir -p /home/jongpark/data/wordpress
 	sudo chmod 777 srcs/requirements/mariadb/tools/setup.sh
 	sudo chmod 777 srcs/requirements/wordpress/tools/setup.sh
 	sudo chmod 777 srcs/requirements/nginx/tools/setup.sh
